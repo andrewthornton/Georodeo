@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Georodeo</title>
+    <style>
+
+      body {
+        font-family: Helvetica;
+        font-size: 14px;
+      }
+
+      svg {
+        border: 1px solid #ddd;
+        position: absolute;
+        left: calc(50% - 490px);
+        top: calc(50% - 250px);
+      }
+
+      .border {
+        stroke: #a8a8a8;
+        fill: #e7e7e7;
+      }
+
+      .precincts {
+        stroke: #ddd;
+        stroke-width: 0.5px;
+        fill: #f6f6f6;
+      }
+
+      .adler {
+        fill: #d95f02;
+      }
+
+      .martinez {
+        fill: #1b9e77;
+      }
+
+      .tie {
+        fill: #7570b3;
+      }
+
+      .no-results {
+        fill: tan;
+      }
+
+
+    </style>
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+  </head>
+  <body>
+    <script type="text/javascript">
+
+      var width = 980,
+          height = 500;
+
+      var svg = d3.select('body').append('svg')
+        .attr('width', width)
+        .attr('height', height);
+
+      var projection = d3.geo.mercator()
+          .center([-97.75, 30.34])
+          .scale(38000)
+          .translate([width / 2, height / 2]);
+
+      var path = d3.geo.path()
+          .projection(projection);
+
+      var legend = svg.append('g')
+        .attr('transform', 'translate(' + (width - 120) + ',10)');
+
+      var key = legend.selectAll('g')
+        .data(['Adler', 'Martinez', 'Tie', 'No Results'])
+        .enter().append('g')
+        .attr('transform', function (d,i) {return 'translate(0,' + (i*25) + ')';});
+
+      var name = key.selectAll('text')
+        .data(function (d) {return [d];})
+        .enter().append('text')
+        .attr('dy', '1.33em')
+        .text(function (d) {return d;});
+
+      var colorKey = key.selectAll('rect')
+        .data(function (d) {return [d];})
+        .enter().append('rect')
+        .attr('width', 25)
+        .attr('height', 25)
+        .attr('transform', function (d,i) {return 'translate(75,' + (i*25) + ')';})
+        .classed('adler', function (d) {return d === 'Adler';})
+        .classed('martinez', function (d) {return d === 'Martinez';})
+        .classed('tie', function (d) {return d === 'Tie';})
+        .classed('no-results', function (d) {return d === 'No Results';});
+
+      var title = svg.append('text')
+        .attr('class', 'title')
+        .attr('transform', 'translate(10, 20)')
+        .text('City of Austin Mayoral Runoff Results - December 2016');
+
+      var precincts, border;
+
+      d3.json('../data/travis_county.geojson', function (err, county) {
+        d3.json('../data/runoff_results.geojson', function (err, results) {
+          draw(results.features, county.features);
+        });
+      });
+
+      function draw (results, county) {
+
+        border = svg.selectAll('.border')
+            .data(county)
+          .enter().append('path')
+            .attr('d', path)
+            .attr('class', 'border');
+
+        precincts = svg.selectAll('.precincts')
+            .data(results)
+          .enter().append('path')
+            .attr('d', path)
+            .attr('class', 'precincts')
+            .classed('adler', function (d) {
+              return +d.properties.Adler > +d.properties.Martinez;
+            })
+            .classed('martinez', function (d) {
+              return +d.properties.Adler < +d.properties.Martinez;
+            })
+            .classed('tie', function (d) {
+              return +d.properties.Adler > 0 && +d.properties.Martinez &&
+              +d.properties.Adler=== +d.properties.Martinez;
+            })
+            .classed('no-results', function (d) {
+              return +d.properties.Adler === 0 && +d.properties.Martinez === 0;
+            });
+      }
+
+    </script>
+  </body>
+</html>

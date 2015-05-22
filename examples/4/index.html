@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Georodeo</title>
+    <style>
+      svg {
+        border: 1px solid #ddd;
+        position: absolute;
+        left: calc(50% - 490px);
+        top: calc(50% - 250px);
+      }
+
+      rect {
+        fill: red;
+      }
+    </style>
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+  </head>
+  <body>
+    <script type="text/javascript">
+
+      var width = 980,
+          height = 500;
+
+      var svg = d3.select('body').append('svg')
+        .attr('width', width)
+        .attr('height', height);
+
+      var square = svg.append('rect')
+        .attr('width', 150)
+        .attr('height', 150)
+        .attr('x', 50)
+        .attr('y', 100);
+
+      var square2 = svg.append('rect')
+        .attr('width', 150)
+        .attr('height', 150)
+        .attr('x', 220)
+        .attr('y', 100);
+
+    </script>
+  </body>
+</html>

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Georodeo</title>
+    <style>
+      svg {
+        border: 1px solid #ddd;
+        position: absolute;
+        left: calc(50% - 490px);
+        top: calc(50% - 250px);
+      }
+
+      .border {
+        stroke: #ddd;
+        fill: #f6f6f6;
+      }
+
+    </style>
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+  </head>
+  <body>
+    <script type="text/javascript">
+
+      var width = 980,
+          height = 500;
+
+      var svg = d3.select('body').append('svg')
+        .attr('width', width)
+        .attr('height', height);
+
+      var projection = d3.geo.mercator()
+          .center([-97.75, 30.33])
+          .scale(40000)
+          .translate([width / 2, height / 2]);
+
+      var path = d3.geo.path()
+          .projection(projection);
+
+      var precincts, border;
+
+      d3.json('../data/travis_county.geojson', function (err, county) {
+        d3.json('../data/runoff_results.geojson', function (err, results) {
+          draw(results.features, county.features);
+        });
+      });
+
+      function draw (results, county) {
+
+        border = svg.selectAll('.border')
+            .data(county)
+          .enter().append('path')
+            .attr('d', path)
+            .attr('class', 'border');
+
+        precincts = svg.selectAll('.precincts')
+            .data(results)
+          .enter().append('path')
+            .attr('d', path)
+            .attr('class', 'precincts')
+            .style('fill', function (d) {
+              if(+d.properties.Adler < +d.properties.Martinez) {
+                return '#1b9e77';
+              } else {
+                return '#d95f02';
+              }
+            });
+      }
+
+    </script>
+  </body>
+</html>

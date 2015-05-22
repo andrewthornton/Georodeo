@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Georodeo</title>
+    <style>
+      svg {
+        border: 1px solid #ddd;
+        position: absolute;
+        left: calc(50% - 490px);
+        top: calc(50% - 250px);
+      }
+
+    </style>
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+  </head>
+  <body>
+    <script type="text/javascript">
+
+      var width = 980,
+          height = 500;
+
+      var svg = d3.select('body').append('svg')
+        .attr('width', width)
+        .attr('height', height);
+
+      var projection = d3.geo.mercator()
+          .translate([width / 2, height / 2]);
+
+      var path = d3.geo.path()
+          .projection(projection);
+
+      var precincts;
+
+      d3.json('../data/runoff_results.geojson', function (err, results) {
+        draw(results.features);
+      });
+
+      function draw (results) {
+
+        precincts = svg.selectAll('path')
+            .data(results)
+          .enter().append('path')
+            .attr('d', path)
+            .style('fill', function (d) {
+              if(+d.properties.Adler < +d.properties.Martinez) {
+                return '#1b9e77';
+              } else {
+                return '#d95f02';
+              }
+            });
+      }
+
+    </script>
+  </body>
+</html>
